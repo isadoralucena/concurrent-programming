@@ -1,0 +1,3 @@
+Análise da execução serial
+
+O código realiza o processamento das turmas de forma sequencial, corrigindo uma turma por vez. Dessa forma, o tempo de execução aumenta conforme a quantidade de turmas e alunos. Além disso, as notas só são exibidas após a correção de todas as turmas, tornando a execução mais demorada.

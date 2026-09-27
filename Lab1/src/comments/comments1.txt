@@ -1,0 +1,22 @@
+Análise sobre a execução serial:
+
+Não houve alteração na ordem de execução das tarefas durante as execuções do programa serial.
+A ordem de execução do programa sempre é a seguinte:
+
+[main] --- INÍCIO DO PROGRAMA SERIAL JAVA ---
+[main] INÍCIO: Configuração de Logs.
+[main] FIM: Configuração de Logs concluída.
+[main] INÍCIO: Verificação de Recursos.
+[main] Verificando Recurso 1...
+[main] Verificando Recurso 2...
+[main] Verificando Recurso 3...
+[main] Verificando Recurso 4...
+[main] Verificando Recurso 5...
+[main] FIM: Verificação concluída.
+[main] --- FIM DO PROGRAMA SERIAL JAVA ---
+
+Um adendo importante é que pela característica randômica da "Tarefa de Verificação de Recursos", há um tempo
+máximo e mínimo esperado para o código.
+
+Tempo de execução mínimo: 1s * 5 + 4s = 9 segundos
+Tempo de execução máximo: 3s * 5 + 4s = 19 segundos

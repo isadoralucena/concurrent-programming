@@ -1,0 +1,9 @@
+Em suas soluções você sincronizou a execução das threads de tal 
+forma que a thread principal esperasse a finalização de suas threads 
+filhas. Ao implementar esta solução, você chegou a compartilhar 
+algum espaço na memória (variável) entre as diferentes threads 
+filhas e mãe? Se sim, qual? Isso pode levar a condições corridas? As 
+múltiplas threads estão atualizando o mesmo espaço na memória? Temos 
+algum problema na solução desenvolvida? Por que sim ou por que não? 
+
+Sim. As threads compartilham o registro das notas e a estrutura que armazena a maior nota de cada turma. Isso poderia levar a uma condição de corrida caso várias threads atualizassem o mesmo dado simultaneamente. Porém, na solução desenvolvida, cada thread é responsável por uma turma diferente e atualiza apenas os dados dessa turma, não havendo acesso conflitante à mesma posição de memória. A thread principal utiliza join() para aguardar a finalização de todas as threads antes de exibir os resultados. Portanto, não há problemas de condição de corrida na solução e não é necessária exclusão mútua.
