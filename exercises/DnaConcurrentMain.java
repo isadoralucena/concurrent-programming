@@ -127,3 +127,19 @@ public class DnaConcurrentMain {
     }
 
 }
+/*
+DnaConcurrentMain: divide os arquivos entre várias threads que trabalham em paralelo. Os pontos que o serial não tem:
+
+1. Decisão de quantas threads (concurrent/DnaConcurrentMain.java:31):
+int nThreads = Math.min(Runtime.getRuntime().availableProcessors(), files.length);
+   Uma thread por núcleo, mas nunca mais threads do que arquivos (evita threads ociosas).
+2. Divisão do trabalho em fatias contíguas (linhas 37-44): calcula um chunk e dá a cada thread um intervalo de índices
+    [start, end) do array de arquivos. Cada thread recebe um Worker (um Runnable) e é iniciada com start().
+3. Classe Worker (linhas 65-95): é a novidade estrutural. Cada worker percorre só a sua fatia e guarda o resultado parcial
+    num campo próprio count. Como cada worker tem o seu acumulador, não há escrita concorrente numa variável compartilhada,
+    sem precisar de synchronized nem de lock.
+4. Sincronização / junção (linhas 47-53): a thread principal faz join() em cada thread, ou seja, espera todas terminarem antes de prosseguir.
+5. Redução final (linhas 56-59): só depois do join, a thread principal soma com segurança os parciais de cada worker:
+long total = 0;
+for (Worker w : workers) total += w.getCount();
+ */
