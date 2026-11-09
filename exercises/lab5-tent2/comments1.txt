@@ -1,0 +1,77 @@
+Analise das execucoes - Lab5 (Produtor-Consumidor com semaforos)
+
+Solucao usada:
+O Buffer usa tres semaforos:
+- mutex (comeca em 1): so uma thread acessa a lista por vez, evitando
+  condicao de corrida no add/remove.
+- vagas (comeca em 50): conta as posicoes livres. O produtor faz acquire
+  antes de inserir, entao se o buffer tiver 50 itens ele fica bloqueado
+  ate um consumidor liberar uma vaga.
+- itens (comeca em 0): conta os itens disponiveis. O consumidor faz acquire
+  antes de remover, entao se o buffer estiver vazio ele fica bloqueado ate
+  um produtor inserir algo.
+O acquire de vagas/itens e feito ANTES do mutex. Se fosse ao contrario, uma
+thread poderia dormir segurando o mutex e travar todo mundo (deadlock).
+
+Para os consumidores terminarem, o Main espera (join) todos os produtores e
+depois coloca um -1 no buffer para cada consumidor. Quando um consumidor
+retira um -1 ele para. Como a lista funciona como fila, os -1 so sao lidos
+depois de todos os itens reais.
+
+Execucoes realizadas
+(parametros: produtores itens_por_produtor tempo_producao consumidores tempo_consumo)
+
+1) 1 100 150 1 150 -> ~15,3 s, tamanho maximo do buffer: 1
+   Mesma velocidade dos dois lados. O consumidor praticamente pega cada item
+   logo que ele e produzido, o buffer fica sempre entre 0 e 1. O tempo total
+   e dado pela producao (100 x 150 ms = 15 s).
+
+2) 1 100 10 1 100 -> ~10,1 s, tamanho maximo: 50
+   Produtor 10x mais rapido que o consumidor. O buffer enche rapido e chega
+   no limite de 50; a partir dai o produtor fica bloqueado no semaforo vagas
+   e so produz quando um item e consumido. O limite nunca foi ultrapassado.
+   O tempo total e dado pelo consumidor (100 x 100 ms).
+
+3) 1 100 100 1 10 -> ~10,1 s, tamanho maximo: 1
+   Consumidor mais rapido. Ele passa a maior parte do tempo bloqueado no
+   semaforo itens esperando o buffer ter algo. O buffer fica quase sempre
+   vazio e o tempo total e dado pelo produtor.
+
+4) 4 50 50 1 50 -> ~10,2 s, tamanho maximo: 50
+   Quatro produtores juntos produzem 4x mais rapido que um consumidor, entao
+   o buffer enche e os produtores ficam esperando vagas. O gargalo e o unico
+   consumidor (200 itens x 50 ms = 10 s). Colocar mais produtores nao adianta
+   quando quem e lento e o consumo.
+
+5) 1 200 10 4 100 -> ~5,1 s, tamanho maximo: 50
+   4 consumidores de 100 ms consomem ~40 itens/s, o produtor gera ~100/s.
+   O buffer ainda enche, mas o tempo cai pela metade comparado a usar um
+   consumidor so, porque o consumo e feito em paralelo.
+
+6) 5 100 20 5 20 -> ~2,1 s, tamanho maximo: 6
+   Produtores e consumidores equilibrados. Com 500 itens o tempo foi parecido
+   com o de um produtor fazendo 100 itens (100 x 20 ms), ou seja, as threads
+   realmente trabalharam em paralelo. O buffer ficou pequeno.
+
+7) 10 100 5 2 100 -> ~50,2 s, tamanho maximo: 50
+   Muitos produtores rapidos e poucos consumidores lentos. O buffer fica
+   cheio quase o tempo todo e os produtores passam a maior parte do tempo
+   bloqueados. Tempo = 1000 itens / 2 consumidores x 100 ms = 50 s.
+
+8) 2 100 100 10 5 -> ~10,1 s, tamanho maximo: 10
+   Muitos consumidores rapidos e poucos produtores. Os consumidores ficam
+   quase sempre esperando no semaforo itens. O tamanho maximo 10 apareceu
+   so no final, quando o Main coloca os 10 sinais -1 de parada.
+
+Conclusoes
+- Em todas as execucoes o numero de itens consumidos foi igual ao produzido,
+  nenhum item foi consumido duas vezes ou perdido e o buffer nunca passou de
+  50 itens. O programa sempre terminou (sem deadlock).
+- O tempo total e definido pelo lado mais lento (producao ou consumo
+  somados de todas as threads). Aumentar threads do lado que ja e rapido nao
+  melhora o tempo, so faz essas threads ficarem mais tempo bloqueadas.
+- Quando a producao e mais rapida, o buffer enche e os produtores esperam;
+  quando o consumo e mais rapido, o buffer fica vazio e os consumidores
+  esperam. Isso mostra que os semaforos vagas e itens estao funcionando.
+- A ordem das mensagens no terminal muda a cada execucao, porque quem
+  escalona as threads e o sistema operacional.
