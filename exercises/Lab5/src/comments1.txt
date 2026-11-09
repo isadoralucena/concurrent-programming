@@ -1,0 +1,9 @@
+Nas execuções realizadas, foi possível observar que o sistema funciona de maneira sequencial, pois todos os produtores terminam suas atividades antes que os consumidores comecem a retirar os itens do buffer.
+
+Ao utilizar múltiplos produtores, cada um produz sua quantidade de itens em sequência, acumulando-os no buffer. Por exemplo, com dois produtores e um consumidor, o primeiro produtor insere seus itens, depois o segundo realiza suas inserções e, somente após ambos terminarem, o consumidor começa a retirar os itens.
+
+Quando há múltiplos consumidores, o primeiro consumidor retira todos os itens disponíveis, enquanto os demais não encontram itens para consumir, pois o buffer já está vazio.
+
+Os diferentes tempos de produção e consumo alteram o intervalo entre as operações. Quando o tempo de produção é menor, os itens são inseridos mais rapidamente; quando o tempo de consumo é menor, os itens são removidos mais rapidamente. Entretanto, essas diferenças não fazem com que as operações aconteçam simultaneamente, já que os produtores sempre executam antes dos consumidores.
+
+Isso ocorre porque os métodos produce() e process() são chamados diretamente, sem a criação ou inicialização de novas threads. Portanto, apesar de implementar a lógica básica do problema Producer-Consumer, o código atual não apresenta concorrência entre produtores e consumidores.
