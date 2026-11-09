@@ -1,0 +1,31 @@
+Análise
+
+Ao executar a solução concorrente com diferenças quantidades de threads, nota-se que para 
+valores baixos (por exemplo 2, que é o mínimo) o tempo de user, isto é, o tempo
+total que o processo gastou utilizando a CPU em modo usuário, é menor do que quando o número
+de threads é alto (por exemplo 80), pois ao utilizar múltiplas threads em um sistema com 
+vários núcleos, o valor de user aumenta devido à disputa pela CPU. 
+
+Já valor real, ou seja, o tempo total decorrido, aumenta conforme o número de threads
+diminui, porque há poucas threads para muito trabalho, diminuindo o paralelismo.
+
+// Compilando a small_sample.jpg com 4 threads
+Compilando código...
+Executando...
+Pixels alterados: 1440000
+Pixels inalterados: 0
+
+real    0m0.753s
+user    0m2.134s
+sys     0m0.267s
+
+// Compilando a small_sample.jpg com 80 threads
+Compilando código...
+Executando...
+Pixels alterados: 1440000
+Pixels inalterados: 0
+
+real    0m0.692s
+user    0m4.237s
+sys     0m0.451s
+
