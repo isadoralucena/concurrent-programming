@@ -10,19 +10,15 @@ class Consumer {
     }
     
     public void process() {
-        boolean interrupted = false;
         while (true) {
             try {
                 int item = buffer.remove();
-                if (item == -1) {
-                    if (interrupted) Thread.currentThread().interrupt();
-                    break;
-                }
+                if (item == -1) break;
                 System.out.println("Consumer " + id + " consumed item " + item);
                 Thread.sleep(sleepTime);
             } catch (InterruptedException e) {
-                // Continua atendendo para não deixar a sentinela sem consumidor.
-                interrupted = true;
+                Thread.currentThread().interrupt();
+                break;
             }
         }
     }

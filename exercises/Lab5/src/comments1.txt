@@ -1,3 +1,5 @@
+ANÁLISE DAS EXECUÇÕES - SOLUÇÃO SERIAL
+
 Nas execuções realizadas, foi possível observar que o sistema funciona de maneira sequencial, pois todos os produtores terminam suas atividades antes que os consumidores comecem a retirar os itens do buffer.
 
 Ao utilizar múltiplos produtores, cada um produz sua quantidade de itens em sequência, acumulando-os no buffer. Por exemplo, com dois produtores e um consumidor, o primeiro produtor insere seus itens, depois o segundo realiza suas inserções e, somente após ambos terminarem, o consumidor começa a retirar os itens.

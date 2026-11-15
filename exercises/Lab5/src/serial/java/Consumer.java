@@ -11,14 +11,13 @@ class Consumer {
     
     public void process() {
         while (true) {
+            int item = buffer.remove();
+            if (item == -1) break;
+            System.out.println("Consumer " + id + " consumed item " + item);
             try {
-                int item = buffer.remove();
-                if (item == -1) break;
-                System.out.println("Consumer " + id + " consumed item " + item);
                 Thread.sleep(sleepTime);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
-                break;
             }
         }
     }

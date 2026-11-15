@@ -12,43 +12,15 @@ public class Main {
         int consumingTime = Integer.parseInt(args[4]);
         
         Buffer buffer = new Buffer();
-        Thread[] producers = new Thread[numProducers];
-        Thread[] consumers = new Thread[numConsumers];
-
-        // Cria e inicia os consumidores
-        for (int i = 0; i < numConsumers; i++) {
-            Consumer consumer = new Consumer(i + 1, buffer, consumingTime);
-
-            consumers[i] = new Thread(() -> consumer.process());
-            consumers[i].start();
+        
+        for (int i = 1; i <= numProducers; i++) {
+            Producer producer = new Producer(i, buffer, maxItemsPerProducer, producingTime);
+            producer.produce();
         }
-
-        // Cria e inicia os produtores
-        for (int i = 0; i < numProducers; i++) {
-            Producer producer = new Producer(i + 1, buffer, maxItemsPerProducer, producingTime);
-
-            producers[i] = new Thread(() -> producer.produce());
-            producers[i].start();
-        }
-
-        try {
-            // Espera todos os produtores terminarem
-            for (Thread producer : producers) {
-                producer.join();
-            }
-
-            // Envia um sinal de encerramento para cada consumidor
-            for (int i = 0; i < numConsumers; i++) {
-                buffer.put(-1);
-            }
-
-            // Espera todos os consumidores terminarem
-            for (Thread consumer : consumers) {
-                consumer.join();
-            }
-
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
+        
+        for (int i = 1; i <= numConsumers; i++) {
+            Consumer consumer = new Consumer(i, buffer, consumingTime);
+            consumer.process();
         }
     }
 }

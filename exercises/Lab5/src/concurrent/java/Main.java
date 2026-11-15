@@ -15,50 +15,40 @@ public class Main {
         Thread[] producers = new Thread[numProducers];
         Thread[] consumers = new Thread[numConsumers];
 
+        // Cria e inicia os consumidores
         for (int i = 0; i < numConsumers; i++) {
             Consumer consumer = new Consumer(i + 1, buffer, consumingTime);
-            consumers[i] = new Thread(consumer::process, "consumer-" + (i + 1));
+
+            consumers[i] = new Thread(() -> consumer.process());
             consumers[i].start();
         }
+
+        // Cria e inicia os produtores
         for (int i = 0; i < numProducers; i++) {
             Producer producer = new Producer(i + 1, buffer, maxItemsPerProducer, producingTime);
-            producers[i] = new Thread(producer::produce, "producer-" + (i + 1));
+
+            producers[i] = new Thread(() -> producer.produce());
             producers[i].start();
         }
 
-        boolean interrupted = false;
-        for (Thread producer : producers) {
-            interrupted |= joinUninterruptibly(producer);
-        }
-
-        // Só após o fim de todos os produtores entram as sentinelas FIFO.
-        for (int i = 0; i < numConsumers; i++) {
-            boolean inserted = false;
-            while (!inserted) {
-                try {
-                    buffer.put(-1);
-                    inserted = true;
-                } catch (InterruptedException e) {
-                    interrupted = true;
-                }
+        try {
+            // Espera todos os produtores terminarem
+            for (Thread producer : producers) {
+                producer.join();
             }
-        }
 
-        for (Thread consumer : consumers) {
-            interrupted |= joinUninterruptibly(consumer);
-        }
-        if (interrupted) Thread.currentThread().interrupt();
-    }
-
-    private static boolean joinUninterruptibly(Thread thread) {
-        boolean interrupted = false;
-        while (thread.isAlive()) {
-            try {
-                thread.join();
-            } catch (InterruptedException e) {
-                interrupted = true;
+            // Envia um sinal de encerramento para cada consumidor
+            for (int i = 0; i < numConsumers; i++) {
+                buffer.put(-1);
             }
+
+            // Espera todos os consumidores terminarem
+            for (Thread consumer : consumers) {
+                consumer.join();
+            }
+
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
         }
-        return interrupted;
     }
 }
